@@ -7,6 +7,9 @@ import bodyParser from "body-parser";
 import dotenv from "dotenv"
 
 
+import usersRouter from "./routes/users/users.js"
+import bookRouter from "./routes/Books/books.js";
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -31,6 +34,9 @@ app.use(session({
 }));
 
 
+app.use("/users" , usersRouter);
+app.use("/books" , bookRouter)
+
 const db_link =  process.env.db_link
 
 mongoose.connect(db_link,{})
@@ -40,3 +46,4 @@ mongoose.connect(db_link,{})
 
 
 
+app.listen(PORT , () =>console.log('Listening to PORT: '+PORT))
