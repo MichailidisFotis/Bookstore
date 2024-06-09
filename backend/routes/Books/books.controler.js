@@ -1,5 +1,12 @@
+import fs from "fs"
+
+
 import bookModel from "./models/bookModel.js"
 import accept_book from "./validation_schemas/accept_book.js";
+import { promisify } from "util";
+
+
+const unLinkAsync  = promisify(fs.unlink)
 
 
 const add_book = async(req , res)=>{
@@ -9,7 +16,7 @@ const add_book = async(req , res)=>{
     var price  =  req.body.price;
     var image =  req.file
 
-    console.log(req.file)
+    // console.log(req.file)
 
     const {error} =  accept_book(req.body)
 
@@ -43,9 +50,64 @@ const add_book = async(req , res)=>{
 }
 
 const delete_book =  async(req , res)=>{
+    
+    var book_id =  req.params.book_id;
 
+    var find_book = await bookModel.findById({
+        _id:book_id
+    })
+
+    if (find_book ==null) 
+        return res.status(404).send("Book not Found")
+
+    //* check if book is in an order or in a shopping cart , if yes then simply change "available" flag to false.
+    //* else continue            
+    
+
+
+
+    //*delete book document from database
+    await bookModel.findByIdAndDelete({
+        _id:book_id
+    })
+
+    //*delete image from folder
+    await unLinkAsync('./uploads/'+find_book.picture)
+    
+    return res
+           .status(200)
+           .send(`Book : ${find_book.title} deleted`)
 
 }
 
+const getBooks =  async(req ,res)=>{
 
-export default {add_book , delete_book};
+    const books  =  await bookModel.find({})
+
+
+
+
+
+    return res.status(200).send(books)
+
+}
+
+const update_book = async(req , res)=>{
+        var book_id   = req.params.book_id;
+
+        const find_book =  await bookModel.findById({
+            _id : book_id
+        })
+
+
+        if(book_id ==null)
+            return res.status(404).send("Book not Found")
+
+
+        
+
+
+}   
+
+
+export default {add_book , delete_book , update_book , getBooks};

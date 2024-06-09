@@ -1,9 +1,9 @@
 import validator from "email-validator";
+import bcrypt from "bcrypt";
+
 import register_user from "./validation_schemas/register_user.js";
 import userModel from "./models/userModel.js";
-import bcrypt from "bcrypt"
-
-
+import shoppingCartModel from "../ShoppingCart/models/shoppingCartModel.js";
 
 //*Signup
 const signup = async (req, res) => {
@@ -39,8 +39,6 @@ const signup = async (req, res) => {
 
   if (!emailValid) return res.status(400).send({ message: "Email is invalid" });
 
-
-
   //*Check if username already exists
   const username_exists = await userModel
     .where({ username: username })
@@ -52,133 +50,134 @@ const signup = async (req, res) => {
       signup: false,
     });
 
+  //*check if email exists
+  const email_exists = await userModel.where({ email: email }).countDocuments();
 
-    //*check if email exists
-    const email_exists = await userModel.where({ email: email }).countDocuments();
-
-    if (email_exists)
-      return res.status(400).send({
-        message: "Email Already Exists",
-        signup: false,
-      });
-
-    var hashedPassword =  await bcrypt.hash(password , 10)
-    
-    //*Create user
-    const user = new userModel({
-        username: username,
-        password: hashedPassword,
-        firstname: firstname,
-        surname: surname,
-        email: email,
-        role:role
+  if (email_exists)
+    return res.status(400).send({
+      message: "Email Already Exists",
+      signup: false,
     });
 
+  var hashedPassword = await bcrypt.hash(password, 10);
 
-    //*save document to Database
-    await user.save();
+  //*Create user
+  const user = new userModel({
+    username: username,
+    password: hashedPassword,
+    firstname: firstname,
+    surname: surname,
+    email: email,
+    role: role,
+  });
 
-    //*send response
-    return res.status(201).send({
-      message: "Signup Successful",
-      signup: true,
+  //*save document to Database
+  await user.save();
+
+  if (role == "Customer") {
+    //*create shopping cart
+    const ShoppingCart = new shoppingCartModel({
+      user: user.id,
     });
 
+    await ShoppingCart.save();
+  }
+
+  //*send response
+  return res.status(201).send({
+    message: "Signup Successful",
+    signup: true,
+  });
 };
+
+
+
 
 //*Login User
 const login = async (req, res) => {
+  var username = req.body.username;
+  var password = req.body.password;
 
-    var username = req.body.username;
-    var password = req.body.password;
+  //*Check if username is inserted
+  if (!username)
+    return res.status(400).send({
+      message: "Username must be inserted",
+      login: false,
+    });
 
-    //*Check if username is inserted
-    if (!username)
-        return res.status(400).send({
-          message: "Username must be inserted",
-          login: false,
-        });
-
-    //*check if password is inserted
-    if (!password)
+  //*check if password is inserted
+  if (!password)
     return res.status(400).send({
       message: "Password must be inserted",
       login: false,
     });
 
-    //* Check if username exists
-    const findUser = await userModel.findOne({
-        username: username,
-      });
+  //* Check if username exists
+  const findUser = await userModel.findOne({
+    username: username,
+  });
 
-      if (!findUser) {
-        return res.status(404).send({
-          message: "Username not found",
-          login: false,
-        });
-      }
+  if (!findUser) {
+    return res.status(404).send({
+      message: "Username not found",
+      login: false,
+    });
+  }
 
-    var loginUser =  await bcrypt.compare(password , findUser.password)
+  // console.log(findUser)
+  // console.log(findUser._id)
 
-      if(!loginUser)
-        return res.status(400).send({
-            message: "Credentials are wrong",
-            login: false,
-          });
+  //* check if passwords match
+  var loginUser = await bcrypt.compare(password, findUser.password);
 
-      if (findUser.role ==="Admin") {
-
-        req.session.user_id = findUser.id;
-        req.session.username = findUser.username;
-        req.session.firstname = findUser.firstname;
-        req.session.surname = findUser.surname;
-        req.session.email = findUser.email;
-        req.sessiom.role = findUser.role
-        
-        return res.status(200).send({
-            message:"Logged in as admin",
-            login:true     
-        })
-        
- 
-        
+  if (!loginUser)
+    return res.status(400).send({
+      message: "Credentials are wrong",
+      login: false,
+    });
 
 
-      }  
-      else{
-
-        req.session.user_id = findUser.id;
-        req.session.username = findUser.username;
-        req.session.firstname = findUser.firstname;
-        req.session.surname = findUser.surname;
-        req.session.email = findUser.email;
-        req.sessiom.role = findUser.role
-
-        return res.status(200).send({
-            message:"Logged in as customer",
-            login:true
-        })
-    
-        }
+    req.session.user_id = findUser.id;
+    req.session.username = findUser.username;
+    req.session.firstname = findUser.firstname;
+    req.session.surname = findUser.surname;
+    req.session.email = findUser.email;
+    req.session.role = findUser.role;  
 
 
+  if (findUser.role === "Admin") {
 
+
+    return res.status(200).send({
+      message: "Logged in as admin",
+      login: true,
+    });
+  } else {
+
+
+    return res.status(200).send({
+      message: "Logged in as customer",
+      login: true,
+    });
+  }
 };
+
 
 //*Delete user
 const delete_user = async (req, res) => {
 
-
-  
 };
+
+
+
 
 //*Signout
 const signout = async (req, res) => {
 
 
-    req.session.destroy();
+  req.session.destroy();
 
-    return res.status(200).send("Signout!!!");
+  return res.status(200).send("Signout!!!");
 };
 
 export default {

@@ -9,7 +9,8 @@ import dotenv from "dotenv"
 
 import usersRouter from "./routes/users/users.js"
 import bookRouter from "./routes/Books/books.js";
-
+import shoppingCartRouter from "./routes/ShoppingCart/shoppingCart.js"
+import ordersRouter from "./routes/Orders/orders.js"
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -36,6 +37,9 @@ app.use(session({
 
 app.use("/users" , usersRouter);
 app.use("/books" , bookRouter)
+app.use("/shopping-cart" ,shoppingCartRouter)
+app.use("/orders" ,ordersRouter)
+
 
 const db_link =  process.env.db_link
 

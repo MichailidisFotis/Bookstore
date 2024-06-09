@@ -1,26 +1,22 @@
 import mongoose, { Schema } from "mongoose"
 
 
-
 const shoppingCartSchema = new mongoose.Schema({
 
     user:{
-        type:Schema.Types.ObjectId,
+        type:String,
         required:true
     },
 
     books:[{
-        type:Schema.Types.ObjectId,
-        ref:"book"
+        book_id:{type:String},
+        quantity:{type:Number , default:1}
     }],
 
     total_price:{
         type:Number,
-        required:true
+        default:0.0
     }
-
-
-
 })
 
 const shoppingCartModel = mongoose.model('shoppingCart',shoppingCartSchema)

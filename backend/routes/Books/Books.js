@@ -28,16 +28,30 @@ const upload  =  multer({storage})
 
 
 
-const router  = express()
+const router  = express.Router()
+
+//*GET request to get all books in the database
+router.get("/get-books" , requireLogin , jsonParser , booksControler.getBooks)
+
 
 
 //*POST request to create new book
-router.post("/add-book" ,  jsonParser , upload.single('image') , booksControler.add_book);
+router.post("/add-book" ,requireAdmin , requireLogin ,  jsonParser , upload.single('image') , booksControler.add_book);
 
 
-router.delete("/delete-book" , requireAdmin , requireLogin , jsonParser,
-    booksControler.delete_book
-)
+//*DELETE request to delete book
+router.delete("/delete-book/:book_id" , requireAdmin , requireLogin , jsonParser,booksControler.delete_book)
+
+
+
+//*PATCH request to update book's details
+router.patch("/update-book/:book_id" , requireAdmin , requireLogin ,jsonParser,booksControler.update_book)
+
+
+
+
+
+
 
 
 

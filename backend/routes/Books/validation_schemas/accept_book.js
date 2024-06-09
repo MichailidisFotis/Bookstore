@@ -6,9 +6,9 @@ const accept_book = data =>{
     const schema  = Joi.object({
         title : Joi.string().required(),
         author:Joi.string().required(),
-        
         price:Joi.number().required(),
-        image:Joi.any()
+        picture:Joi.any(),
+        available:Joi.boolean()
 
     }).unknown()
 
