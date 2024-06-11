@@ -124,9 +124,6 @@ test("Create a new Books is done correctly" , async()=>{
 
 
 
-
-
-
 test("Changing books price is done correctly" , async()=>{
     var response  =  await request(app)
     .patch("/books/update-book/"+book_1_id)
@@ -178,6 +175,33 @@ test("Deleting users is done correctly" , async()=>{
     expect(response_2.status).toBe(200)
 
 
+})
+
+
+
+test("Singout Admin is done correctly" , async()=>{
+
+    var response =  await request(app)
+    .post("/users/signout")
+    .set('Cookie' , loginResponse.header['set-cookie'])
+
+
+    expect(response.text).toBe("Signout!!!")
+    expect(response.status).toBe(200)
+
+
+})
+
+test("Create a new Books is not completed when admin is not logged in" , async()=>{
+    var response =  await request(app)
+    .post("/books/add-book")
+    .send(book_1)
+    .set("Cookie" , loginResponse.header['set-cookie'])
+
+    book_1_id =response.body.book_id
+    
+    expect(response.text).toBe("Unauthorized")
+    expect(response.status).toBe(401)
 
 
 })
