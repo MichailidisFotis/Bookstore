@@ -9,12 +9,20 @@ import ordersControler from "./orders.controler.js";
 const router = express.Router()
 
 
-router.get("/:order_id" , requireLogin , requireAdmin , ordersControler.get_order)
+//*route to get order details 
+router.get("/get-order/:order_id" , requireLogin , requireAdmin , ordersControler.get_order)
+
+//*route to get all orders
+router.get("/get-all-orders" , requireLogin, requireAdmin , ordersControler.get_all_orders)
 
 
-router.patch("/change-order-stare/:order_id" , requireLogin , requireAdmin , ordersControler.change_order_state)
 
-router.delete("/delete-order/:order_id" , requireAdmin , requireLogin , ordersControler.delete_order)
+//*route to change order state
+router.patch("/change-order-state/:order_id" , requireLogin , requireAdmin , ordersControler.change_order_state)
+
+
+//*route to delete order
+router.delete("/delete-order/:order_id" , requireLogin , requireAdmin , ordersControler.delete_order)
 
 
 

@@ -28,7 +28,7 @@ dotenv.config()
 app.use(session({
 	secret: 'secret',
 	resave: false,
-	saveUninitialized: true,
+	saveUninitialized: false,
     cookie: {
         maxAge:269999999999
       }
@@ -51,3 +51,7 @@ mongoose.connect(db_link,{})
 
 
 app.listen(PORT , () =>console.log('Listening to PORT: '+PORT))
+
+
+
+export default app;

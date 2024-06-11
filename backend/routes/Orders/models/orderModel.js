@@ -9,8 +9,9 @@ const orderSchema = new mongoose.Schema({
         type: Number
     },
 
-    books :[{       
-        type:String}],
+    books :[{
+        book_id:{type:String},
+        quantity:{type:Number , default:1}}],
     
     state:{
         type:String,

@@ -12,17 +12,22 @@ var jsonParser = bodyParser.json();
 
 const router =  express.Router()
 
-//*POST request to create order from shopping cart  
+//*route to get cart information
+router.get("/get-cart-information" , requireLogin, requireCustomer , shoppingCartControler.get_cart_information)
+
+
+
+//*route to create order from shopping cart  
 router.post("/create-order" ,jsonParser, requireLogin , requireCustomer , shoppingCartControler.create_order)
 
 
 
 
-//*PATCH request to add books to cart
+//*route to add books to cart
 router.patch("/add-books-to-cart" ,jsonParser, requireLogin ,requireCustomer, shoppingCartControler.add_books_to_cart)
 
 
-//*PATCH request to remove books from cart
+//*route to remove books from cart
 router.patch("/remove-books-from-cart" ,jsonParser, requireLogin , requireCustomer ,shoppingCartControler.remove_books_from_cart)
 
 

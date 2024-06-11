@@ -1,9 +1,15 @@
 import validator from "email-validator";
 import bcrypt from "bcrypt";
+import mongoose from "mongoose";
 
 import register_user from "./validation_schemas/register_user.js";
+
 import userModel from "./models/userModel.js";
 import shoppingCartModel from "../ShoppingCart/models/shoppingCartModel.js";
+import orderModel from "../Orders/models/orderModel.js"
+
+
+
 
 //*Signup
 const signup = async (req, res) => {
@@ -87,6 +93,7 @@ const signup = async (req, res) => {
   return res.status(201).send({
     message: "Signup Successful",
     signup: true,
+    user_id:user._id
   });
 };
 
@@ -124,8 +131,7 @@ const login = async (req, res) => {
     });
   }
 
-  // console.log(findUser)
-  // console.log(findUser._id)
+
 
   //* check if passwords match
   var loginUser = await bcrypt.compare(password, findUser.password);
@@ -145,26 +151,59 @@ const login = async (req, res) => {
     req.session.role = findUser.role;  
 
 
-  if (findUser.role === "Admin") {
-
-
+  if (findUser.role === "Admin") 
     return res.status(200).send({
       message: "Logged in as admin",
       login: true,
     });
-  } else {
-
-
+  else
     return res.status(200).send({
       message: "Logged in as customer",
       login: true,
     });
-  }
+  
 };
 
 
 //*Delete user
 const delete_user = async (req, res) => {
+
+  var user_id =  req.params.user_id;
+
+  if (!mongoose.isValidObjectId(user_id))
+      return res.status(400).send("Invalid User ID")
+
+
+  var findUser =  await userModel.findById({
+    _id:user_id
+  })
+
+
+  if (!findUser)
+      return res.status(404).send("User Not Found")
+
+
+  //*check if user has orders
+  var has_orders =  await orderModel.findOne(
+    {
+      user:user_id
+    })
+
+  if (has_orders)
+      return res.status(400).send("User has pending orders")
+
+  //*delete user's cart
+  await shoppingCartModel.findOneAndDelete({
+    user:user_id
+  })
+
+
+  //*delete user
+  await userModel.findByIdAndDelete({
+    _id:user_id
+  })
+
+  return res.status(200).send("User Deleted")
 
 };
 

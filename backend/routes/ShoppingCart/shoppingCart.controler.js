@@ -2,11 +2,20 @@ import shoppingCartModel from "./models/shoppingCartModel.js";
 import bookModel from "../Books/models/bookModel.js";
 import orderModel from "../Orders/models/orderModel.js";
 
+
+
 const add_books_to_cart = async (req, res) => {
   var book_id = req.body.book_id;
 
   var total_price = 0.0;
 
+
+  //*Check if Book_id is valid
+  if (!mongoose.isValidObjectId(book_id))
+    return res.status(400).send("Invalid Book ID !!!")
+
+
+  //*Check if book exists
   var findBook = await bookModel.findById({
     _id: book_id,
   });
@@ -46,7 +55,7 @@ const add_books_to_cart = async (req, res) => {
 
         return res
         .status(200)
-        .send("Shopping Cart Updated , New Book on cart")
+        .send("Shopping Cart Updated")
   }
 
 
@@ -111,50 +120,82 @@ return res
 
 
 const remove_books_from_cart = async (req, res) => {
-  var ids_to_remove = req.body.ids_to_remove;
+  var book_id = req.body.book_id;
   var total_price = 0.0;
 
-  //*remove books from shopping cart
-  ids_to_remove.forEach(async (id) => {
-    await shoppingCartModel.findOneAndUpdate(
-      {
-        user: req.session.user_id,
+  //*Check if Book_id is valid
+  if (!mongoose.isValidObjectId(book_id))
+    return res.status(400).send("Invalid Book ID !!!")
+
+
+  var findBook =  await bookModel.findById({
+    _id:book_id
+  })
+
+
+  if (!findBook)
+      return res 
+                .status(404)
+                .send("Book not found")
+
+
+total_price =  Number(findBook.price)
+
+
+var decrease_price =  await shoppingCartModel.findOneAndUpdate({
+  user:req.session.user_id},
+{
+  $inc: {
+    total_price: -Number(total_price),
+  },
+})
+
+
+var decrease_quantity  = await shoppingCartModel.findOneAndUpdate({
+        user:req.session.user_id,
+        "books.book_id":book_id
       },
       {
-        $pullAll: {
-          books: [id],
-        },
-      }
-    );
-  });
+         $inc:{"books.$.quantity": -1} 
+      })
 
-  var findBook;
 
-  //* calculate total price to reduce
-  for (var i = 0; i < ids_to_remove.length; i++) {
-    findBook = await bookModel.findById({
-      _id: ids_to_remove[i],
-    });
-
-    total_price += Number(findBook.price);
+      
+var remove_object  = await shoppingCartModel.findOneAndUpdate({
+    user:req.session.user_id,
+    "books.book_id":book_id,
+    "books.quantity":0
+},
+  {
+    $pull: {
+      books: {
+        book_id: book_id,
+      },
   }
+}
+)
 
-  console.log(total_price);
-
-  await shoppingCartModel.findOneAndUpdate(
-    {
-      user: req.session.user_id,
-    },
-    {
-      $inc: {
-        total_price: -Number(total_price),
-      },
-    }
-  );
-
-  return res.status(200).send("Books Removed");
+  return res
+            .status(200)
+            .send("Book Removed");
 };
 
+
+const get_cart_information =  async(req , res)=>{
+
+    var cart_information =  await shoppingCartModel.findOne(
+      {user:req.session.user_id}
+    )
+
+    return res
+        .status(200)
+        .send(cart_information)
+      
+}
+
+
+
+ //* Function to create order
 const create_order = async (req, res) => {
   var user_cart = await shoppingCartModel.findOne({
     user: req.session.user_id,
@@ -162,7 +203,9 @@ const create_order = async (req, res) => {
 
   //*check if "books" list is empty
   if (user_cart.books.length == 0)
-    return res.status(400).send("Add some books before submiting");
+    return res
+              .status(400)
+              .send("Add some books before submiting");
 
   //*create new order
   var order = new orderModel({
@@ -183,7 +226,11 @@ const create_order = async (req, res) => {
     }
   );
 
-  return res.status(201).send("Order Created");
+  return res
+            .status(201)
+            .send("Order Created");
 };
 
-export default { add_books_to_cart, remove_books_from_cart, create_order };
+export default { add_books_to_cart, remove_books_from_cart, create_order
+                ,get_cart_information
+ };
