@@ -1,0 +1,11 @@
+#message{
+    text-align: center;
+    height: 40px;
+    justify-content: center;
+}
+
+#message h1{
+    font-size: 20px;
+    padding: 1%;
+
+}

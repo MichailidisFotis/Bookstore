@@ -154,11 +154,13 @@ const login = async (req, res) => {
   if (findUser.role === "Admin") 
     return res.status(200).send({
       message: "Logged in as admin",
+      url:"/Admin",
       login: true,
     });
   else
     return res.status(200).send({
       message: "Logged in as customer",
+      url:"/Customer",
       login: true,
     });
   

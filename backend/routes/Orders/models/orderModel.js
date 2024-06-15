@@ -20,6 +20,10 @@ const orderSchema = new mongoose.Schema({
     user_id:{
         type:String,
         required:true
+    },
+    date:{
+        type:'String',
+        required:true
     }
 })
 

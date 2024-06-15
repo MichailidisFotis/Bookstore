@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 import shoppingCartModel from "./models/shoppingCartModel.js";
 import bookModel from "../Books/models/bookModel.js";
 import orderModel from "../Orders/models/orderModel.js";
@@ -197,6 +199,17 @@ const get_cart_information =  async(req , res)=>{
 
  //* Function to create order
 const create_order = async (req, res) => {
+  
+  const currentDate = new Date();
+
+  const year = currentDate.getFullYear();
+  const month = (currentDate.getMonth() + 1).toString().padStart(2, '0'); // Adding 1 because months are zero-indexed
+  const day = currentDate.getDate().toString().padStart(2, '0');
+  
+  const formattedDate = `${year}-${month}-${day}`;
+  
+  
+  
   var user_cart = await shoppingCartModel.findOne({
     user: req.session.user_id,
   });
@@ -212,6 +225,7 @@ const create_order = async (req, res) => {
     total_price: user_cart.total_price,
     books: user_cart.books,
     user_id: req.session.user_id,
+    date:formattedDate
   });
 
   await order.save();

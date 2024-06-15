@@ -5,7 +5,7 @@ import {dirname} from "path"
 import mongoose from "mongoose";    
 import bodyParser from "body-parser";
 import dotenv from "dotenv"
-
+import cors from "cors"
 
 import usersRouter from "./routes/users/users.js"
 import bookRouter from "./routes/Books/books.js";
@@ -24,6 +24,8 @@ var jsonParser = bodyParser.json();
 
 const app =  express();
 dotenv.config()
+
+app.use(cors())
 
 app.use(session({
 	secret: 'secret',
