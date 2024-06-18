@@ -133,7 +133,7 @@ test("Changing books price is done correctly" , async()=>{
     .set("Cookie" , loginResponse.header['set-cookie'])
 
 
-    expect(response.text).toBe("Book price updated")
+    expect(response.body.message).toBe("Book price updated")
     expect(response.status).toBe(200)
 
 
@@ -150,10 +150,10 @@ test("Deleting books is done correctly" , async()=>{
     .delete("/books/delete-book/"+book_2_id)
     .set('Cookie' ,loginResponse.header['set-cookie'])
     
-    expect(response.text).toBe(`Book : ${book_1.title} deleted`)
+    expect(response.body.message).toBe(`Book : ${book_1.title} deleted`)
     expect(response.status).toBe(200)
 
-    expect(response_2.text).toBe(`Book : ${book_2.title} deleted`)
+    expect(response_2.body.message).toBe(`Book : ${book_2.title} deleted`)
     expect(response_2.status).toBe(200)
 })
 
@@ -168,10 +168,10 @@ test("Deleting users is done correctly" , async()=>{
     .delete("/users/delete-user/"+customer_id)
     .set('Cookie' ,loginResponse.header['set-cookie'])
     
-    expect(response.text).toBe('User Deleted')
+    expect(response.body.message).toBe('User Deleted')
     expect(response.status).toBe(200)
 
-    expect(response_2.text).toBe('User Deleted')
+    expect(response_2.body.message).toBe('User Deleted')
     expect(response_2.status).toBe(200)
 
 
@@ -186,7 +186,7 @@ test("Singout Admin is done correctly" , async()=>{
     .set('Cookie' , loginResponse.header['set-cookie'])
 
 
-    expect(response.text).toBe("Signout!!!")
+    expect(response.body.message).toBe("Signout!!!")
     expect(response.status).toBe(200)
 
 
@@ -200,7 +200,7 @@ test("Create a new Books is not completed when admin is not logged in" , async()
 
     book_1_id =response.body.book_id
     
-    expect(response.text).toBe("Unauthorized")
+    expect(response.body.message).toBe("Unauthorized")
     expect(response.status).toBe(401)
 
 

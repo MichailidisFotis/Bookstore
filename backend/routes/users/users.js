@@ -26,6 +26,8 @@ router.post("/signout", requireLogin , usersControler.signout)
 router.delete("/delete-user/:user_id" , requireLogin , requireAdmin , usersControler.delete_user)
 
 
+//*route to get all users
+router.get("/get-all-users" ,requireLogin , requireAdmin,  usersControler.getAll)
 
 
 

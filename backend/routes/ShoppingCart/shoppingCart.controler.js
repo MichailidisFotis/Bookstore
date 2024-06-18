@@ -14,7 +14,7 @@ const add_books_to_cart = async (req, res) => {
 
   //*Check if Book_id is valid
   if (!mongoose.isValidObjectId(book_id))
-    return res.status(400).send("Invalid Book ID !!!")
+    return res.status(400).send({message:"Invalid Book ID !!!"})
 
 
   //*Check if book exists
@@ -22,7 +22,7 @@ const add_books_to_cart = async (req, res) => {
     _id: book_id,
   });
 
-  if (!findBook) return res.status(404).send("Book Not Found!!!");
+  if (!findBook) return res.status(404).send({message:"Book Not Found!!!"});
 
   //*check if book is already in shopping cart
   var findCart = await shoppingCartModel.findOne({
@@ -57,7 +57,7 @@ const add_books_to_cart = async (req, res) => {
 
         return res
         .status(200)
-        .send("Shopping Cart Updated")
+        .send({message:"Shopping Cart Updated"})
   }
 
 
@@ -110,7 +110,7 @@ const add_books_to_cart = async (req, res) => {
 
 return res
         .status(200)
-        .send("Shopping Cart Updated")
+        .send({message:"Shopping Cart Updated"})
 
 
 
@@ -127,7 +127,7 @@ const remove_books_from_cart = async (req, res) => {
 
   //*Check if Book_id is valid
   if (!mongoose.isValidObjectId(book_id))
-    return res.status(400).send("Invalid Book ID !!!")
+    return res.status(400).send({message:"Invalid Book ID !!!"})
 
 
   var findBook =  await bookModel.findById({
@@ -138,7 +138,7 @@ const remove_books_from_cart = async (req, res) => {
   if (!findBook)
       return res 
                 .status(404)
-                .send("Book not found")
+                .send({message:"Book not found"})
 
 
 total_price =  Number(findBook.price)
@@ -179,7 +179,7 @@ var remove_object  = await shoppingCartModel.findOneAndUpdate({
 
   return res
             .status(200)
-            .send("Book Removed");
+            .send({message:"Book Removed"});
 };
 
 
@@ -218,7 +218,7 @@ const create_order = async (req, res) => {
   if (user_cart.books.length == 0)
     return res
               .status(400)
-              .send("Add some books before submiting");
+              .send({message:"Add some books before submiting"});
 
   //*create new order
   var order = new orderModel({
@@ -242,7 +242,7 @@ const create_order = async (req, res) => {
 
   return res
             .status(201)
-            .send("Order Created");
+            .send({message:"Order Created"});
 };
 
 export default { add_books_to_cart, remove_books_from_cart, create_order

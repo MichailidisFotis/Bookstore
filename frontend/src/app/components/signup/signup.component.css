@@ -9,3 +9,12 @@
     padding: 1%;
 
 }
+
+#role{
+    border: 0.8px solid rgb(209, 213, 219);
+    border-radius: 6px;
+    height: 44.8px;
+    font-size:16px;
+    font-family: "Inter var", sans-serif;
+    color: rgb(75, 85, 99);
+}

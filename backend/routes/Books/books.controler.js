@@ -35,7 +35,7 @@ const add_book = async(req , res)=>{
     )
 
     if(title_exists)
-            return res.status(400).send("Title already exists")
+            return res.status(400).send({message:"Title already exists"})
 
 
         var book  
@@ -85,7 +85,7 @@ const delete_book =  async(req , res)=>{
     var book_id =  req.params.book_id;
 
     if (!mongoose.isValidObjectId(book_id))
-            return res.status(400).send("Invalid book ID !!!")
+            return res.status(400).send({message:"Invalid book ID !!!"})
 
 
     var find_book = await bookModel.findById({
@@ -93,7 +93,7 @@ const delete_book =  async(req , res)=>{
     })
 
     if (find_book ==null) 
-        return res.status(404).send("Book not Found")
+        return res.status(404).send({message:"Book not Found"})
 
     //* check if book is in an order or in a shopping cart 
     var book_in_order =  await orderModel.findOne({
@@ -102,7 +102,7 @@ const delete_book =  async(req , res)=>{
     })
     
     if(book_in_order)
-            return res.status(400).send("Cannot Delete, book is in an order")
+            return res.status(400).send({message:"Cannot Delete, book is in an order"})
 
     
     //* check if book is in an order or in a shopping cart 
@@ -112,7 +112,7 @@ const delete_book =  async(req , res)=>{
         })
     
         if(book_in_cart)
-                return res.status(400).send("Cannot Delete, book is in a shopping cart")
+                return res.status(400).send({message:"Cannot Delete, book is in a shopping cart"})
 
 
 
@@ -127,7 +127,7 @@ const delete_book =  async(req , res)=>{
     
     return res
            .status(200)
-           .send(`Book : ${find_book.title} deleted`)
+           .send({message:`Book : ${find_book.title} deleted`})
 
 }
 
@@ -148,7 +148,7 @@ const update_book = async(req , res)=>{
         var new_price =  req.body.price
 
         if (!mongoose.isValidObjectId(book_id))
-            return res.status(400).send("Invalid book ID !!!")
+            return res.status(400).send({message:"Invalid book ID !!!"})
 
         const find_book =  await bookModel.findById({
             _id : book_id
@@ -161,7 +161,7 @@ const update_book = async(req , res)=>{
 
 
         if(!find_book)
-            return res.status(404).send("Book not Found")
+            return res.status(404).send({message:"Book not Found"})
 
         await bookModel.findByIdAndUpdate({
             _id :book_id}
@@ -171,7 +171,7 @@ const update_book = async(req , res)=>{
         })
 
 
-        return res.status(200).send("Book price updated")
+        return res.status(200).send({message:"Book price updated"})
 
 
 }   

@@ -1,1 +1,42 @@
-<p>admin works!</p>
+<p-menubar [model]="items"></p-menubar>
+
+<div id="message">
+    <h1 id="Response"></h1>
+</div>
+<div class="card">
+    
+    <p-table [value]="users" [tableStyle]="{ 'min-width': '50rem' }">
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Customer ID</th>
+                <th>Firstname</th>
+                <th>Surname</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th style="width: 5rem"></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-user>
+            <tr>
+                <td>{{ user._id }}</td>
+                <td>{{ user.firstname }}</td>
+                <td>{{ user.surname }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.role }}</td>
+                <td>
+                    <p-button 
+                        type="button" 
+                        pButton 
+                        pRipple
+                        rounded="true"
+                        icon="pi pi-trash" 
+                        severity="danger"
+                        (onClick)="delete_user(user)"/>
+                    
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>

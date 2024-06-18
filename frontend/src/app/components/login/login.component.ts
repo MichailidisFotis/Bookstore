@@ -56,15 +56,20 @@ export class LoginComponent {
   
     fetch(url, {
       method: "POST",
+      credentials:'include',
+      
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(data)
-      })
+      body: JSON.stringify(data),
+    })
       .then((response)=>{
         return response.json()
       })
       .then((data)=>{
+        
+
+
         if (!data.login) {
           const message = data.message;
           messageBox.style.display = "block";
@@ -73,6 +78,7 @@ export class LoginComponent {
             '<i class="pi pi-times"></i> ' + message;
         }
         else{
+
           window.location.href=data.url
         }
           
@@ -81,6 +87,7 @@ export class LoginComponent {
       })
 
   }
+
 
 
 

@@ -25,14 +25,20 @@ var jsonParser = bodyParser.json();
 const app =  express();
 dotenv.config()
 
-app.use(cors())
+app.use(cors({  
+  origin: 'http://localhost:4200', 
+   credentials: true 
+
+
+}))
 
 app.use(session({
 	secret: 'secret',
 	resave: false,
 	saveUninitialized: false,
     cookie: {
-        maxAge:269999999999
+        maxAge:269999999999,
+        secure:false
       }
 }));
 

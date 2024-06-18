@@ -142,16 +142,18 @@ const login = async (req, res) => {
       login: false,
     });
 
-
+   
     req.session.user_id = findUser.id;
     req.session.username = findUser.username;
     req.session.firstname = findUser.firstname;
     req.session.surname = findUser.surname;
     req.session.email = findUser.email;
-    req.session.role = findUser.role;  
+    req.session.role = findUser.role; 
 
 
-  if (findUser.role === "Admin") 
+   console.log("Username login:"+req.session.username)
+
+  if (req.session.role == "Admin") 
     return res.status(200).send({
       message: "Logged in as admin",
       url:"/Admin",
@@ -173,7 +175,7 @@ const delete_user = async (req, res) => {
   var user_id =  req.params.user_id;
 
   if (!mongoose.isValidObjectId(user_id))
-      return res.status(400).send("Invalid User ID")
+      return res.status(400).send({message:"Invalid User ID"})
 
 
   var findUser =  await userModel.findById({
@@ -182,7 +184,7 @@ const delete_user = async (req, res) => {
 
 
   if (!findUser)
-      return res.status(404).send("User Not Found")
+      return res.status(404).send({message:"User Not Found"})
 
 
   //*check if user has orders
@@ -192,7 +194,7 @@ const delete_user = async (req, res) => {
     })
 
   if (has_orders)
-      return res.status(400).send("User has pending orders")
+      return res.status(400).send({message:"User has pending orders"})
 
   //*delete user's cart
   await shoppingCartModel.findOneAndDelete({
@@ -205,7 +207,7 @@ const delete_user = async (req, res) => {
     _id:user_id
   })
 
-  return res.status(200).send("User Deleted")
+  return res.status(200).send({message:"User Deleted"})
 
 };
 
@@ -218,12 +220,27 @@ const signout = async (req, res) => {
 
   req.session.destroy();
 
-  return res.status(200).send("Signout!!!");
+  return res.status(200).send({message:"Signout!!!" , url:"/"});
 };
+
+
+
+const getAll  = async(req,res)=>{
+
+  // console.log(req.session.user_id)
+  // console.log(req.session.role)
+
+    var users =  await userModel.find({role:"Customer"}).select("_id firstname surname email username role")
+    return res.status(200).send(users)
+}
+
+
+
 
 export default {
   login,
   delete_user,
   signup,
   signout,
+  getAll
 };
