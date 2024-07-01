@@ -87,12 +87,14 @@ export class AdminComponent {
 
   getUsers(){
     var url = "http://localhost:5000/users/get-all-users"
-
+    
+    var token =  localStorage.getItem("token")
 
     fetch(url, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+          'Authorization':"Bearer "+token
       },
       credentials:'include'
       })
@@ -116,7 +118,8 @@ export class AdminComponent {
 
   delete_user(user:User){
       var url  =  "http://localhost:5000/users/delete-user/"+user._id
-     
+      
+      var token  =  localStorage.getItem("token")
 
       const responseLabel =  (<HTMLInputElement>document.getElementById("Response"))
       const messageBox =  (<HTMLInputElement>document.getElementById("message"))
@@ -125,6 +128,7 @@ export class AdminComponent {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
+          'Authorization': 'Bearer '+token
         },
         credentials:'include'
         })

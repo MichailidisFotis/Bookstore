@@ -2,13 +2,20 @@ import validator from "email-validator";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import nodemailer from "nodemailer"
-import register_user from "./validation_schemas/register_user.js";
+import jwt from "jsonwebtoken"
+
 import dotenv from "dotenv"
+
+import register_user from "./validation_schemas/register_user.js";
+
 import userModel from "./models/userModel.js";
 import shoppingCartModel from "../ShoppingCart/models/shoppingCartModel.js";
 import orderModel from "../Orders/models/orderModel.js"
 
 dotenv.config()
+
+const accessTokenSecret="myaccesstoken";
+var accessToken;
 
 
 //*Signup
@@ -57,12 +64,12 @@ const signup = async (req, res) => {
     });
 
   //*check if email exists
-  const email_exists = await userModel.where({ email: email }).countDocuments();
+  const email_exists = await userModel.where({ email: email}).countDocuments();
 
   if (email_exists)
     return res.status(400).send({
-      message: "Email Already Exists",
-      signup: false,
+            message: "Email Already Exists",
+            signup: false,
     });
 
   var hashedPassword = await bcrypt.hash(password, 10);
@@ -90,38 +97,41 @@ const signup = async (req, res) => {
   }
 
 
-  // var transporter = nodemailer.createTransport({
-  //   auth: {
-  //     user: process.env.my_email,
-  //     pass: process.env.email_password
-  //   }
-  // });
-  
-  // var mailOptions = {
-  //   from: process.env.my_email,
-  //   to: 'fot.mich2001@yahoo.gr',
-  //   subject: 'Verification Email',
-  //   text: 'Registered!'
-  // };
 
-  // transporter.sendMail(mailOptions, function(error, info){
-  //   if (error) {
-  //     console.log(error);
-  //   } else {
-  //     console.log('Email sent: ' + info.response);
-  //   }
-  // });
+  const transporter = nodemailer.createTransport({
 
+    service:'Yahoo',
+    auth: {
+      user: process.env.email,
+      pass: process.env.email_password,
+    },
+
+
+  });
+
+  var mailOptions = {
+    from: process.env.email,
+    to: 'bookstoretestemail1@gmail.com',
+    subject: 'Verification Email',
+    text: `Registered as ${role}!`
+  };
+
+  transporter.sendMail(mailOptions, function(error, info){
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('Email sent: ' + info.response);
+    }
+  });
 
 
   //*send response
   return res.status(201).send({
-    message: "Signup Successful",
+    message: "Signup Successful, you received an email!!!",
     signup: true,
     user_id:user._id
   });
 };
-
 
 
 
@@ -176,21 +186,29 @@ const login = async (req, res) => {
     req.session.role = findUser.role; 
 
 
-   console.log("Username login:"+req.session.username)
+   console.log("Username login: "+req.session.username)
 
-  if (req.session.role == "Admin") 
+  if (req.session.role == "Admin") {
+    
+    accessToken=jwt.sign({username:findUser.username , role:findUser.role } , accessTokenSecret)
+    
     return res.status(200).send({
       message: "Logged in as admin",
       url:"/Admin",
       login: true,
-    });
-  else
+      token:accessToken
+    });}
+  else{
+
+    accessToken=
+    jwt.sign({username:findUser.username , role:findUser.role } , accessTokenSecret)
     return res.status(200).send({
       message: "Logged in as customer",
       url:"/Customer",
       login: true,
+      token:accessToken
     });
-  
+  }
 };
 
 
@@ -251,9 +269,6 @@ const signout = async (req, res) => {
 
 
 const getAll  = async(req,res)=>{
-
-
-
     var users =  await userModel.find({role:"Customer"}).select("_id firstname surname email username role")
     return res.status(200).send(users)
 }
@@ -329,8 +344,8 @@ const update_password =  async (req , res)=>{
         _id:user_id,
       })
 
-        //* check if passwords match
-    var authorize_user = await bcrypt.compare(old_password, findUser.password);
+      //* check if passwords match
+      var authorize_user = await bcrypt.compare(old_password, findUser.password);
 
 
       if (!authorize_user)
@@ -352,16 +367,13 @@ const update_password =  async (req , res)=>{
       {
         password:hashedPassword
       })  
+
+
       return res.status(200).send({
         message:"Password changed successfully"
       })
-      
-
-
-
 
 }
-
 
 
 export default {

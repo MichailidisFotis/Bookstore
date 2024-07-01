@@ -49,7 +49,7 @@ const add_book = async(req , res)=>{
             });
     
         
-            //*save document to Database
+            //*save book document to Database
             await book.save(); 
         }
         else{
@@ -65,10 +65,6 @@ const add_book = async(req , res)=>{
             await book.save();   
 
         }
-
-
-     
-
 
         return res.status(201).send({
             message:"New Book added",
@@ -152,8 +148,6 @@ const update_book = async(req , res)=>{
         })
 
 
-
-
         if(!find_book)
             return res.status(404).send({message:"Book not Found"})
 
@@ -166,8 +160,6 @@ const update_book = async(req , res)=>{
 
 
         return res.status(200).send({message:"Book price updated"})
-
-
 } 
 
 

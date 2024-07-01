@@ -68,7 +68,7 @@ export class LoginComponent {
       })
       .then((data)=>{
         
-
+        localStorage.setItem("token" ,data.token)
 
         if (!data.login) {
           const message = data.message;

@@ -61,6 +61,8 @@ var book_2_id
 var admin_id
 var customer_id
 
+var token
+
 test("Register admin is done correctly",async()=>{
     var response =  await request(app)
     .post("/users/signup")
@@ -90,6 +92,8 @@ test("Login as admin is done correctly" , async()=>{
     .post("/users/login")
     .send(login_admin)
 
+    token =  loginResponse.body.token
+
     expect(loginResponse.body.message).toBe("Logged in as admin")
     expect(loginResponse.status).toBe(200)
 
@@ -101,6 +105,7 @@ test("Create a new Books is done correctly" , async()=>{
     .post("/books/add-book")
     .send(book_1)
     .set("Cookie" , loginResponse.header['set-cookie'])
+    .set('Authorization' , 'Bearer '+token)
 
     book_1_id =response.body.book_id
     
@@ -109,6 +114,7 @@ test("Create a new Books is done correctly" , async()=>{
     .post("/books/add-book")
     .send(book_2)
     .set("Cookie" , loginResponse.header['set-cookie'])
+    .set('Authorization' , 'Bearer '+token)
 
     book_2_id =response_2.body.book_id
 
@@ -131,6 +137,7 @@ test("Changing books price is done correctly" , async()=>{
         price:30.45
     })
     .set("Cookie" , loginResponse.header['set-cookie'])
+    .set('Authorization' , 'Bearer '+token)
 
 
     expect(response.body.message).toBe("Book price updated")
@@ -144,11 +151,13 @@ test("Deleting books is done correctly" , async()=>{
     var response  = await request(app)
     .delete("/books/delete-book/"+book_1_id)
     .set('Cookie' , loginResponse.header['set-cookie'])
+    .set('Authorization' , 'Bearer '+token)
     
     
     var response_2 =  await request(app)
     .delete("/books/delete-book/"+book_2_id)
     .set('Cookie' ,loginResponse.header['set-cookie'])
+    .set('Authorization' , 'Bearer '+token)
     
     expect(response.body.message).toBe(`Book : ${book_1.title} deleted`)
     expect(response.status).toBe(200)
@@ -162,11 +171,14 @@ test("Deleting users is done correctly" , async()=>{
     var response  = await request(app)
     .delete("/users/delete-user/"+admin_id)
     .set('Cookie' , loginResponse.header['set-cookie'])
+    .set('Authorization' , 'Bearer '+token)
     
     
     var response_2 =  await request(app)
     .delete("/users/delete-user/"+customer_id)
     .set('Cookie' ,loginResponse.header['set-cookie'])
+    .set('Authorization' , 'Bearer '+token)
+
     
     expect(response.body.message).toBe('User Deleted')
     expect(response.status).toBe(200)
@@ -184,6 +196,7 @@ test("Singout Admin is done correctly" , async()=>{
     var response =  await request(app)
     .post("/users/signout")
     .set('Cookie' , loginResponse.header['set-cookie'])
+    .set('Authorization' , 'Bearer '+token)
 
 
     expect(response.body.message).toBe("Signout!!!")
@@ -197,6 +210,7 @@ test("Create a new Books is not completed when admin is not logged in" , async()
     .post("/books/add-book")
     .send(book_1)
     .set("Cookie" , loginResponse.header['set-cookie'])
+    .set('Authorization' , 'Bearer '+token)
 
     book_1_id =response.body.book_id
     
