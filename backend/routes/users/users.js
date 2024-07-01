@@ -3,6 +3,7 @@ import express from "express";
 import usersControler from "./users.controler.js"
 import requireLogin from "../../middlewares/requireLogin.js";
 import requireAdmin from "../../middlewares/requireAdmin.js"
+import requireCustomer from "../../middlewares/requireCustomer.js";
 
 var jsonParser = bodyParser.json();
 
@@ -29,6 +30,12 @@ router.delete("/delete-user/:user_id" , requireLogin , requireAdmin , usersContr
 //*route to get all users
 router.get("/get-all-users" ,requireLogin , requireAdmin,  usersControler.getAll)
 
+//*route to change user information
+router.patch("/update-user" , jsonParser, requireLogin ,requireCustomer , usersControler.update_user)
+
+//*route to change password
+
+router.patch("/change-password" , jsonParser, requireLogin , usersControler.update_password)
 
 
 

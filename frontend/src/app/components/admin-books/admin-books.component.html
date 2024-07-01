@@ -1,1 +1,24 @@
-<p>admin-books works!</p>
+
+<p-menubar [model]="items"></p-menubar>
+
+<div class="grid" id="book-grid" style="margin-top: 20px;margin-left: 10px; column-gap: 10px; row-gap: 20px;">
+    
+    <p-card header="${data[i].title}" subheader="Author:${data[i].title}" [style]="{ width: '350px' }">
+        <ng-template pTemplate="header">
+            <img style="width: 350px; height: 186.09;" alt="Card" src="https://primefaces.org/cdn/primeng/images/card-ng.jpg" />
+        </ng-template>
+        <p style="font-size: 20px; text-align: end;">
+            15$
+        </p>
+        <ng-template pTemplate="footer">
+            <div class="flex gap-3 mt-1">
+                <p-button id="${data[i]._id}" label="Edit" severity="secondary" class="w-full" styleClass="w-full" />
+                
+            </div>
+        </ng-template>
+    </p-card>
+            
+
+</div>
+
+

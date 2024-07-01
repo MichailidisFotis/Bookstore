@@ -1,14 +1,14 @@
 import validator from "email-validator";
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
-
+import nodemailer from "nodemailer"
 import register_user from "./validation_schemas/register_user.js";
-
+import dotenv from "dotenv"
 import userModel from "./models/userModel.js";
 import shoppingCartModel from "../ShoppingCart/models/shoppingCartModel.js";
 import orderModel from "../Orders/models/orderModel.js"
 
-
+dotenv.config()
 
 
 //*Signup
@@ -88,6 +88,31 @@ const signup = async (req, res) => {
 
     await ShoppingCart.save();
   }
+
+
+  // var transporter = nodemailer.createTransport({
+  //   auth: {
+  //     user: process.env.my_email,
+  //     pass: process.env.email_password
+  //   }
+  // });
+  
+  // var mailOptions = {
+  //   from: process.env.my_email,
+  //   to: 'fot.mich2001@yahoo.gr',
+  //   subject: 'Verification Email',
+  //   text: 'Registered!'
+  // };
+
+  // transporter.sendMail(mailOptions, function(error, info){
+  //   if (error) {
+  //     console.log(error);
+  //   } else {
+  //     console.log('Email sent: ' + info.response);
+  //   }
+  // });
+
+
 
   //*send response
   return res.status(201).send({
@@ -227,13 +252,115 @@ const signout = async (req, res) => {
 
 const getAll  = async(req,res)=>{
 
-  // console.log(req.session.user_id)
-  // console.log(req.session.role)
+
 
     var users =  await userModel.find({role:"Customer"}).select("_id firstname surname email username role")
     return res.status(200).send(users)
 }
 
+
+const update_user = async(req ,res)=>{
+
+      var user_id =  req.session.user_id
+      var new_email =  req.body.new_email;
+      var new_username  =  req.body.new_username;
+
+
+      if (!mongoose.isValidObjectId(user_id))
+        return res.status(400).send({message:"Invalid User ID"})
+  
+  
+      var findUser =  await userModel.findById({
+      _id:user_id
+        })
+  
+  
+      if (!findUser)
+        return res.status(404).send({message:"User Not Found"})
+
+        //*check if email form is valid
+      const emailValid = validator.validate(new_email);
+
+     if (!emailValid) return res.status(400).send({ message: "Email form is invalid" });
+
+      var username_exists = await userModel.findOne({
+        username:new_username
+      })
+      
+      if (username_exists)
+          return res.status(400).send({
+            message:"Username already exists"
+          })
+
+       
+      var email_exists =  await userModel.findOne({
+        email:new_email
+      })
+
+      if(email_exists)
+          return res.status(400).send({
+            message:"Email already exists"  
+          })
+        
+      
+          await userModel.findOneAndUpdate({
+            _id:user_id
+          },
+          {username:new_username,
+            email:new_email})
+
+          req.session.username =  new_username
+          req.session.email =  new_email
+
+          return res.status(200).send({
+            message:"User Information updated"
+          })
+
+}
+
+
+const update_password =  async (req , res)=>{
+      var new_password = req.body.new_password
+      var old_password =  req.body.old_password
+      var verify_new_password =  req.body.verify_new_password
+      var user_id =  req.session.user_id
+
+      var findUser = await userModel.findOne({
+        _id:user_id,
+      })
+
+        //* check if passwords match
+    var authorize_user = await bcrypt.compare(old_password, findUser.password);
+
+
+      if (!authorize_user)
+        return res.status(401).send({
+          message:"Incorrect Password"
+        })
+        
+        
+      if(new_password != verify_new_password)
+          return res.status(400).send({
+              message:"Passwords must match"
+        })
+
+      var hashedPassword = await bcrypt.hash(new_password, 10);
+
+      await userModel.findByIdAndUpdate({
+        _id:user_id
+      },
+      {
+        password:hashedPassword
+      })  
+      return res.status(200).send({
+        message:"Password changed successfully"
+      })
+      
+
+
+
+
+}
 
 
 
@@ -242,5 +369,7 @@ export default {
   delete_user,
   signup,
   signout,
-  getAll
+  getAll,
+  update_user,
+  update_password
 };

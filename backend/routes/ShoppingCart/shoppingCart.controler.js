@@ -246,5 +246,4 @@ const create_order = async (req, res) => {
 };
 
 export default { add_books_to_cart, remove_books_from_cart, create_order
-                ,get_cart_information
- };
+                ,get_cart_information};

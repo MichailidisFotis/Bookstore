@@ -136,9 +136,6 @@ const getBooks =  async(req ,res)=>{
     const books  =  await bookModel.find({})
 
 
-
-
-
     return res.status(200).send(books)
 
 }
@@ -156,9 +153,6 @@ const update_book = async(req , res)=>{
 
 
 
- 
-
-
 
         if(!find_book)
             return res.status(404).send({message:"Book not Found"})
@@ -174,7 +168,29 @@ const update_book = async(req , res)=>{
         return res.status(200).send({message:"Book price updated"})
 
 
-}   
+} 
 
 
-export default {add_book , delete_book , update_book , getBooks};
+const getBook=  async(req , res)=>{
+        var book_id =  req.params.book_id
+
+        if (!mongoose.isValidObjectId(book_id))
+            return res.status(400).send({message:"Invalid book ID !!!"})
+
+        const find_book =  await bookModel.findById({
+            _id : book_id
+        })
+
+        if (!find_book)
+            return res.status(404).send(
+                {
+                    message:"Book not found"
+                }    
+            )
+
+        return res.status(200).send(find_book)
+
+}
+
+
+export default {add_book , delete_book , update_book , getBooks , getBook};

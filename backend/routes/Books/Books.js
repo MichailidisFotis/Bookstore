@@ -33,6 +33,7 @@ const router  = express.Router()
 //*route to get all books in the database
 router.get("/get-books" , requireLogin , jsonParser , booksControler.getBooks)
 
+router.get("/get-book-information/:book_id", requireLogin , booksControler.getBook)
 
 
 //*route to create new book
